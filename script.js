@@ -16,68 +16,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ================================
-       АНІМАЦІЯ ТА РЕАКЦІЯ КНОПОК
+       АНІМАЦІЯ ТА СВІТІННЯ КНОПОК
     =================================*/
     const mainButtons = document.querySelectorAll(".buttons__1");
 
     mainButtons.forEach(btn => {
 
-        btn.addEventListener("mousedown", () => {
-            btn.classList.add("btn-active");
-        });
-
-        btn.addEventListener("mouseup", () => {
-            btn.classList.remove("btn-active");
+        // Світіння при наведенні
+        btn.addEventListener("mouseenter", () => {
+            btn.style.backgroundColor = "#00bfff";
+            btn.style.color = "#fff";
+            btn.style.boxShadow = "0 0 15px #00bfff";
+            btn.style.transition = "all 0.3s ease";
         });
 
         btn.addEventListener("mouseleave", () => {
-            btn.classList.remove("btn-active");
+            btn.style.backgroundColor = "";
+            btn.style.color = "";
+            btn.style.boxShadow = "";
+        });
+
+        // Анімація натискання
+        btn.addEventListener("mousedown", () => {
+            btn.style.transform = "scale(0.95)";
+        });
+
+        btn.addEventListener("mouseup", () => {
+            btn.style.transform = "scale(1)";
+        });
+
+        btn.addEventListener("mouseleave", () => {
+            btn.style.transform = "scale(1)";
         });
 
         // Поведінка при кліку
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault(); // щоб форма не перезавантажувала сторінку
+
             if (btn.textContent.includes("BECOME")) {
                 alert("Thank you for your interest in becoming a partner!");
             }
+
             if (btn.textContent.includes("LEARN")) {
-                window.scrollTo({
-                    top: document.querySelector(".section_2").offsetTop,
-                    behavior: "smooth"
-                });
+                window.open(
+                    "https://www.instagram.com/cfoodua?igsh=MWpqMnEzemI5ejlpYg==",
+                    "_blank"
+                );
             }
         });
     });
-
-
-    /* ==================================================
-        ДОДАВАННЯ / ВИДАЛЕННЯ ЕЛЕМЕНТІВ У 'Bitesize Stats'
-    ===================================================*/
-    const statsContainer = document.querySelector(".section__3");
-
-    // Створюємо кнопку "Add block"
-    const addBtn = document.createElement("button");
-    addBtn.textContent = "Add Block";
-    addBtn.className = "add-block-btn";
-    statsContainer.after(addBtn);
-
-    addBtn.addEventListener("click", () => {
-        const newBlock = document.createElement("div");
-        newBlock.className = "dynamic-block";
-
-        newBlock.innerHTML = `
-            <img src="images/food.jpg" alt="food" style="width:60px">
-            <p>New</p>
-            <p>Dynamic Block</p>
-            <button class="delete-btn">Delete</button>
-        `;
-
-        statsContainer.appendChild(newBlock);
-
-        newBlock.querySelector(".delete-btn").addEventListener("click", () => {
-            newBlock.remove();
-        });
-    });
-
 
 
     /* ==========================
@@ -97,3 +84,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 });
+
+/* ==============================
+   ДИНАМІЧНІ СТАТИСТИКИ
+============================== */
+fetch('data/stats.json')
+    .then(res => res.json())
+    .then(data => {
+        const statsDivs = document.querySelectorAll(".section__3 > div");
+
+        statsDivs.forEach(div => {
+            // ключ беремо з класу: kalendar, cheese, potato, noodles, prawns, rides
+            const key = div.className.toLowerCase();
+
+            if (data[key]) {
+                div.querySelector("p:first-child").textContent = data[key].value;
+                div.querySelector("p:last-child").textContent = data[key].label;
+            }
+        });
+    })
+    .catch(err => console.error("Error loading stats:", err));
