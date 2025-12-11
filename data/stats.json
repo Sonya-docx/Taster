@@ -1,0 +1,26 @@
+{
+  "kalendar": {
+    "value": 4,
+    "label": "Years"
+  },
+  "cheese": {
+    "value": 425364,
+    "label": "Cheese Slices"
+  },
+  "potato": {
+    "value": "9.2 million",
+    "label": "Sweet Potato Fries"
+  },
+  "noodles": {
+    "value": "7,104 kms",
+    "label": "of Noodles"
+  },
+  "prawns": {
+    "value": 314530,
+    "label": "Tiger Prawns"
+  },
+  "rides": {
+    "value": "1,000,000+",
+    "label": "Rides"
+  }
+}
