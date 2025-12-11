@@ -86,21 +86,82 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ==============================
-   ДИНАМІЧНІ СТАТИСТИКИ
+   Анімація оновлення статистики
 ============================== */
-fetch('data/stats.json')
-    .then(res => res.json())
-    .then(data => {
-        const statsDivs = document.querySelectorAll(".section__3 > div");
+function animateValueWithSuffix(element, valueString, duration) {
+    const match = valueString.toString().match(/[\d.,]+/);
+    if (!match) {
+        element.textContent = valueString;
+        return;
+    }
 
-        statsDivs.forEach(div => {
-            // ключ беремо з класу: kalendar, cheese, potato, noodles, prawns, rides
-            const key = div.className.toLowerCase();
+    const rawNumber = match[0].replace(/,/g, "");
+    const numberPart = parseFloat(rawNumber);
+    const suffix = valueString.toString().replace(match[0], "");
 
-            if (data[key]) {
-                div.querySelector("p:first-child").textContent = data[key].value;
-                div.querySelector("p:last-child").textContent = data[key].label;
-            }
+    const decimals = (rawNumber.split(".")[1] || "").length;
+
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+
+        let currentValue = (progress * numberPart).toFixed(decimals);
+
+        // Додаємо кому для тисяч, якщо це ціле число
+        if (decimals === 0) {
+            currentValue = Number(currentValue).toLocaleString("en-US");
+        }
+
+        element.textContent = currentValue + suffix;
+
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
+// При завантаженні статистики
+fetch("data/stats.json")
+    .then(response => response.json())
+    .then(stats => {
+        const blocks = document.querySelectorAll(".section__3 > div");
+
+        blocks.forEach(block => {
+            const type = block.classList[0]; // kalendar, cheese, potato...
+
+            const valueElement = block.querySelector(".value");
+            const labelElement = block.querySelector(".label");
+
+            if (!valueElement || !labelElement) return;
+
+            labelElement.textContent = stats[type].label;
+
+            const endValue = stats[type].value;
+
+            // Використовуємо тільки animateValueWithSuffix для всіх типів
+            animateValueWithSuffix(valueElement, endValue, 1000);
         });
     })
     .catch(err => console.error("Error loading stats:", err));
+
+/* ==============================
+   ЛІЧИЛЬНИК ОНЛАЙН-КОРИСТУВАЧІВ
+============================== */
+function updateOnlineUsers() {
+    const usersOnline = Math.floor(50 + Math.random() * 100); // випадкове число для демонстрації
+    const el = document.getElementById("onlineCounter");
+
+    // Анімація при зміні числа
+    el.style.opacity = "0.3";
+    setTimeout(() => {
+        el.textContent = "👥 Онлайн зараз: " + usersOnline;
+        el.style.opacity = "1";
+        el.style.transition = "opacity 0.3s ease";
+    }, 200);
+}
+
+// Оновлюємо кожні 3 секунди
+setInterval(updateOnlineUsers, 3000);
+updateOnlineUsers(); // одразу при завантаженні
